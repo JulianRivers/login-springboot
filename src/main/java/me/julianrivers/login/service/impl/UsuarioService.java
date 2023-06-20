@@ -1,5 +1,6 @@
 package me.julianrivers.login.service.impl;
 
+import me.julianrivers.login.exceptions.ResourceNotFoundException;
 import me.julianrivers.login.model.dto.UsuarioDTO;
 import me.julianrivers.login.model.entity.UsuarioEntity;
 import me.julianrivers.login.repository.UsuarioRepository;
@@ -20,7 +21,7 @@ public class UsuarioService implements UsuarioServiceInterface {
     @Override
     public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO) {
         if (usuarioRepository.findByEmail(usuarioDTO.getEmail()) != null){
-            throw new RuntimeException("Usuario ya registrado");
+            throw new ResourceNotFoundException("usuario", "email", "no sé");
         }
         UsuarioEntity usuarioEntity = new UsuarioEntity();
         BeanUtils.copyProperties(usuarioDTO, usuarioEntity);
