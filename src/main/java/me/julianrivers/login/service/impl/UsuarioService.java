@@ -1,12 +1,17 @@
 package me.julianrivers.login.service.impl;
 
 import me.julianrivers.login.model.dto.UsuarioDTO;
-import me.julianrivers.login.model.request.UsuarioRequest;
+import me.julianrivers.login.model.entity.UsuarioEntity;
+import me.julianrivers.login.repository.UsuarioRepository;
 import me.julianrivers.login.service.interfaces.UsuarioServiceInterface;
-import org.springframework.stereotype.Controller;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@Controller
+@Service
 public class UsuarioService implements UsuarioServiceInterface {
+    @Autowired
+    UsuarioRepository usuarioRepository;
     /**
      * Crea un usuario en la base de datos
      * @param usuarioDTO UsuarioDTO
@@ -14,6 +19,16 @@ public class UsuarioService implements UsuarioServiceInterface {
      */
     @Override
     public UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO) {
-        return null;
+        if (usuarioRepository.findByEmail(usuarioDTO.getEmail()) != null){
+            throw new RuntimeException("Usuario ya registrado");
+        }
+        UsuarioEntity usuarioEntity = new UsuarioEntity();
+        BeanUtils.copyProperties(usuarioDTO, usuarioEntity);
+        usuarioEntity.setPasswordEncriptada("test:PasswordEncriptada");
+        usuarioEntity.setIdUsuario("test:idPublico");
+        UsuarioEntity usuarioCreado = usuarioRepository.save(usuarioEntity);
+        UsuarioDTO usuarioReturn = new UsuarioDTO();
+        BeanUtils.copyProperties(usuarioCreado, usuarioReturn);
+        return usuarioReturn;
     }
 }
