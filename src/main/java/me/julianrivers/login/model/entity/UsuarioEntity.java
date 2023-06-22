@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.validation.constraints.Email;
 import java.io.Serializable;
 
 
@@ -22,8 +23,10 @@ public class UsuarioEntity implements Serializable {
     private String idUsuario;
     @Column(nullable = false, length = 100)
     private String nombre;
+
     @Column(nullable = false, length = 100)
     private String apellido;
+    @Email
     @Column(nullable = false, length = 255)
     private String email;
     @Column(nullable = false)

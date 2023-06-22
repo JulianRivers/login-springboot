@@ -6,6 +6,7 @@ import me.julianrivers.login.model.response.UsuarioResponse;
 import me.julianrivers.login.service.interfaces.UsuarioServiceInterface;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,7 +22,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public UsuarioResponse crearUsuario(@RequestBody UsuarioRequest usuario){
+    public UsuarioResponse crearUsuario(@Validated @RequestBody UsuarioRequest usuario){
         UsuarioResponse usuarioResponse = new UsuarioResponse();
         UsuarioDTO usuarioDTO = new UsuarioDTO();
         BeanUtils.copyProperties(usuario, usuarioDTO);
