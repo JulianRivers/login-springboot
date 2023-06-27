@@ -1,9 +1,12 @@
 package me.julianrivers.login.exceptions;
 
 import me.julianrivers.login.model.dto.ErrorDTO;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -11,47 +14,63 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     /**
      * Si la excepción es de tipo AppException
-     * @param exception la excepción ocurrida
+     * @param ex la excepción ocurrida
      * @param request
      * @return Excepción con su debida http status
      */
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<ErrorDTO> handleAppException(AppException exception, WebRequest request) {
-        ErrorDTO error = new ErrorDTO(new Date(), exception.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorDTO> handleAppException(AppException ex, WebRequest request) {
+        ErrorDTO error = new ErrorDTO(new Date(), ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(error, ex.getStatus());
     }
 
     /**
      * Si la excepción es de que no encuentra algún recurso
-     * @param exception la excepción ocurrida
+     * @param ex la excepción ocurrida
      * @param request la actual solicitud
      * @return Excepción con su debida http status
      */
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorDTO> handleResourceNotFoundException(ResourceNotFoundException exception, WebRequest request) {
-        ErrorDTO error = new ErrorDTO(new Date(), exception.getMessage(), request.getDescription(false));
+    public ResponseEntity<ErrorDTO> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
+        ErrorDTO error = new ErrorDTO(new Date(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     /**
      * Si ocurre un error inesperado
-     * @param exception la excepción ocurrida
+     * @param ex la excepción ocurrida
      * @param request la actual solicitud
      * @return Excepción con su debida http status
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDTO> handleGlobalException(Exception exception, WebRequest request) {
-        ErrorDTO error = new ErrorDTO(new Date(), exception.getMessage(), request.getDescription(false));
+    public ResponseEntity<ErrorDTO> handleGlobalException(Exception ex, WebRequest request) {
+        ErrorDTO error = new ErrorDTO(new Date(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Not working as expected
+     * @param ex
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorDTO> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+        String errorMessage = String.format("Error de validación: El campo '%s' no puede ser nulo", ex.getMessage());
+        ErrorDTO error = new ErrorDTO(new Date(), errorMessage, request.getDescription(false));
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -65,5 +84,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         });
         return new ResponseEntity<>(errores,HttpStatus.BAD_REQUEST);
     }
-
 }
