@@ -8,6 +8,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/usuario")
 public class UsuarioController {
@@ -21,7 +23,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public UsuarioResponse crearUsuario(@RequestBody UsuarioRequest usuario){
+    public UsuarioResponse crearUsuario(@RequestBody @Valid UsuarioRequest usuario){
         UsuarioResponse usuarioResponse = new UsuarioResponse();
         UsuarioDTO usuarioDTO = new UsuarioDTO();
         BeanUtils.copyProperties(usuario, usuarioDTO);
