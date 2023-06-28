@@ -8,11 +8,13 @@ import me.julianrivers.login.service.interfaces.UsuarioServiceInterface;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -22,6 +24,7 @@ public class UsuarioService implements UsuarioServiceInterface {
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
+
     /**
      * Crea un usuario en la base de datos
      * @param usuarioDTO UsuarioDTO
@@ -45,13 +48,15 @@ public class UsuarioService implements UsuarioServiceInterface {
     }
 
     /**
-     *
-     * @param username
-     * @return
-     * @throws UsernameNotFoundException
+     * Carga los detalles del usuario para la autenticación basándose en el correo electrónico proporcionado.
+     * @param email el email utilizado para el login del usuario
+     * @return Objecto UserDetails que representa los detalles del usuario
+     * @throws UsernameNotFoundException si el usuario no es encontrado
      */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        UsuarioEntity usuarioEntity =  usuarioRepository.findByEmail(email);
+        if (usuarioEntity == null) throw new UsernameNotFoundException("Usuario no encontrado: "+email);
+        return new User(usuarioEntity.getEmail(), usuarioEntity.getPasswordEncriptada(), new ArrayList<>());
     }
 }
